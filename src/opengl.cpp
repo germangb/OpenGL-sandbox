@@ -69,10 +69,8 @@ void init () {
 	geometry_shader = new shader("shaders/geometry.vert", "shaders/geometry.frag");
 }
 
-float a = 0.0f;
 void logic () {
 	cam->update();
-	a += delta * 0.00025f;
 }
 
 void render_scene (unsigned int program_id) {
@@ -105,9 +103,9 @@ void get_depth_map () {
 	pipel->ortho(-width/25, width/25, -height/25, height/25, -100, 100);
 	pipel->matrix_mode(VIEW_MATRIX);
 	pipel->load_identity();
-	pipel->rotateX(25);
+	pipel->rotateX(45);
 	pipel->rotateY(-45);
-	pipel->translate(-15, -15, -15);
+	pipel->translate(-3, -25, -3);
 	glViewport(0, 0, width*2, height*2);
 	pipel->matrix_mode(MODEL_MATRIX);
 	pipel->load_identity();

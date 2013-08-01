@@ -6,7 +6,8 @@ uniform vec2 resolution;
 uniform float time;
 
 const vec3 night = vec3(1,.25,0.125*0.125)*0.5;
-const vec3 day = vec3(.25,.75,1)*0.25*0.25;
+const vec3 day = vec3(.25,.75,1)*0.25*0.25*0.25;
+//const vec3 day = vec3(.25,.75,1)*0.25*0.25;
 
 float line (float b, float slope, float var) {
 	return (var-b)*slope;

@@ -26,13 +26,12 @@ float rand(vec2 co){
 void main () {
 	
 	vec2 uv_fake = vec2(0.);
-	if (1.0-abs(real_normal.y) < 1e-7) {
+	if (1.0-abs(real_normal.y) < 1e-7)
 		uv_fake = coord.xz;
-	} else if (1.0-abs(real_normal.z) < 1e-7) {
+	else if (1.0-abs(real_normal.z) < 1e-7)
 		uv_fake = vec2(coord.x, -coord.y);
-	} else if (1.0-abs(real_normal.x) < 1e-7) {
+	else if (1.0-abs(real_normal.x) < 1e-7)
 		uv_fake = vec2(coord.z, -coord.y);
-	}
 	
 	vec3 final_color = color;
 	final_color *= max(dot(normalize(normal), -normalize(light_direction)), 0.25);

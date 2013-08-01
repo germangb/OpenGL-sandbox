@@ -33,5 +33,5 @@ void main () {
 	coord = (model_matrix * gl_Vertex).xyz;
 	uv = gl_MultiTexCoord0.xy;
 	
-	light_direction = (view_matrix * vec4(-1.75, -1.5, -1, 0)).xyz;
+	light_direction = (view_matrix * vec4(-1.75, -2, -1, 0)).xyz;
 }
