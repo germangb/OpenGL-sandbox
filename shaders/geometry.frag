@@ -4,7 +4,6 @@ uniform sampler2D texture;
 uniform sampler2D shadow_map;
 
 varying vec3 shadow_coord;
-
 varying vec3 coord;
 varying vec3 vertex;
 varying vec3 normal;
@@ -36,36 +35,19 @@ void main () {
 	}
 	
 	vec3 final_color = color;
-	
-	//final_color += texture2D(texture, uv).rgb;
-	//final_color /= 1.5;
-	
-	/*if (uv != coord.xz) {
-		//final_color *= 1.0 - max(-(0.65*coord.y-1), 0.0)*0.4;
-	} else {
-		final_color += texture2D(texture, coord.xz/16.).rgb;
-		final_color /= 1.75;
-	}*/
-	
-	final_color *= vec3(1,1,.9);
 	final_color *= max(dot(normalize(normal), -normalize(light_direction)), 0.25);
-	
-	//final_color += rand(floor(uv_fake/8)) * 0.25;
-	//final_color += rand(floor(uv_fake/2)) * 0.25;
 	final_color += rand(floor(uv_fake/3)) * 0.35;
 	
 	
-	float bias = 0.00125 * 1.1;
+	float bias = 0.00125 * 1.5;
 	float visibility = 1;
-	/*if (texture2D(shadow_map, shadow_coord.xy).z < shadow_coord.z-bias) {
-		visibility = .75;
-	}*/
-	
+
 	for (int i=0; i<3; i++){
-		if ( texture2D( shadow_map, shadow_coord.xy + poissonDisk[i]/400.0 ).z < shadow_coord.z-bias){
-			visibility -= 0.225;
+		if ( texture2D( shadow_map, shadow_coord.xy + poissonDisk[i]/800.0 ).z < shadow_coord.z-bias){
+			visibility -= 0.175;
 		}
 	}
+	
 
 	gl_FragColor = vec4(final_color*visibility, 1.0);
 }

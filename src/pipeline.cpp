@@ -90,7 +90,7 @@ void pipeline::update_glsl (unsigned int program) {
 	model_view_matrix = view_matrix_stack[view_matrix_stack.size()-1] * model_matrix_stack[model_matrix_stack.size()-1];
 	model_view_projection_matrix = projection_matrix_stack[projection_matrix_stack.size()-1] * view_matrix_stack[view_matrix_stack.size()-1] * model_matrix_stack[model_matrix_stack.size()-1];
 	normal_matrix = glm::mat3(model_view_matrix);
-	
+		
 	glUniformMatrix4fv(glGetUniformLocation(program, "model_matrix"), 1, GL_FALSE, &model_matrix_stack[model_matrix_stack.size()-1][0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(program, "view_matrix"), 1, GL_FALSE, &view_matrix_stack[view_matrix_stack.size()-1][0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(program, "projection_matrix"), 1, GL_FALSE, &projection_matrix_stack[projection_matrix_stack.size()-1][0][0]);
