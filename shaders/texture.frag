@@ -14,7 +14,7 @@ float line (float b, float slope, float var) {
 }
 
 vec3 day_cont (float t) {
-	return mix(day, night, 1);
+	return mix(day, night, 0);
 }
 
 void main () {

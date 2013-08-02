@@ -35,6 +35,7 @@ fbo* depth;
 
 shader* texture;
 shader* geometry_shader;
+shader* simple_shader;
 
 unsigned int mesh;
 
@@ -67,6 +68,7 @@ void init () {
 	
 	texture = new shader("shaders/texture.vert", "shaders/texture.frag");
 	geometry_shader = new shader("shaders/geometry.vert", "shaders/geometry.frag");
+	simple_shader = new shader("shaders/simple.vert", "shaders/simple.frag");
 }
 
 void logic () {
@@ -175,7 +177,19 @@ void render () {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glUseProgram(0);
+	
+	pipel->load_identity();
+	glUseProgram(simple_shader->get_program());
+	pipel->push_matrix();
+	pipel->update_glsl(simple_shader->get_program());
+	glBegin(GL_QUADS);
+		glVertex2f(-1, -1);
+		glVertex2f(-1, 1);
+		glVertex2f(1, 1);
+		glVertex2f(1, -1);
 	glEnd();
+	pipel->pop_matrix();
+	glUseProgram(0);
 }
 
 void cleanUp () {
