@@ -3,8 +3,8 @@
 #version 120
 
 #define CEL_SHADING
-#define SAMPLE_WIDTH 0.002
-#define DEPTH_THRESHOLD .25
+#define SAMPLE_WIDTH 0.003
+#define DEPTH_THRESHOLD .3
 
 uniform sampler2D composite;
 uniform sampler2D gdepth;
@@ -12,7 +12,7 @@ uniform sampler2D blurred;
 
 const float near = 1.;
 const float far = 128.;
-const float pp_cont = .75;
+const float pp_cont = 1;
 
 uniform vec2 resolution;
 
@@ -56,7 +56,7 @@ void main()
 	vec3 blur = texture2D(blurred, uv).rgb;
 	float edge = oEdgeDetect(uv, color.rgb);
 	
-	gl_FragColor = vec4((color*pp_cont + blur*(1.-pp_cont))*edge,1);
+	gl_FragColor = vec4((color*pp_cont + blur*(1.-pp_cont))*edge*edge,1);
 }
 
 

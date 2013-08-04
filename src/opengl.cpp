@@ -13,8 +13,8 @@
 #include "../headers/mesh_loader.h"
 #include "../headers/pipeline.h"
 
-int width = 950;
-int height = 550;
+int width = 850;
+int height = 525;
 const char* title = "curves";
 const int fov = 40;
 const int fps = 60;
@@ -56,9 +56,9 @@ void init () {
 	cam->set_far(far);
 	
 	cam->set_animate(false);
-	cam->set_x(-3);
+	cam->set_x(-10);
 	cam->set_y(45);
-	cam->set_z(-3);
+	cam->set_z(17);
 	cam->set_rx(75);
 	cam->set_ry(30);
 	cam->set_animate(true);
@@ -67,7 +67,7 @@ void init () {
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	
-	mesh = bake_mesh(mesh_loader("meshes/modul.obj"));
+	mesh = bake_mesh(mesh_loader("meshes/pipe.obj"));
 	texture = load_texture("gfx/stairs_uv.png", GL_LINEAR, GL_REPEAT);
 	
 	geometry = new fbo(width, height);
@@ -128,9 +128,10 @@ void render_scene (unsigned int program_id) {
 		glNormal3f(0, 1, 0);	glVertex3f(50, 0, -50);
 	glEnd();
 	pipel->push_matrix();
-	pipel->translate(5, 0, -20);
+	//pipel->translate(5, 0, -20);
 	pipel->update_glsl(program_id);
-	glColor3f(119./255., 101./255., 88./255.);
+	//glColor3f(119./255., 101./255., 88./255.);
+	glColor3f(62./255., 63./255., 64./255.);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glUniform1i(glGetUniformLocation(program_id, "texture"), 0);
@@ -151,12 +152,12 @@ void get_depth_map () {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	pipel->matrix_mode(PROJECTION_MATRIX);
 	pipel->load_identity();
-	pipel->ortho(-width/25, width/25, -height/25, height/25, -100, 100);
+	pipel->ortho(-width/20, width/20, -height/20, height/20, -100, 100);
 	pipel->matrix_mode(VIEW_MATRIX);
 	pipel->load_identity();
-	pipel->rotateX(45);
+	pipel->rotateX(60);
 	pipel->rotateY(-45);
-	pipel->translate(-3, -25, -3);
+	pipel->translate(-2, -25, -2);
 	glViewport(0, 0, width*lightmap_res_cont, height*lightmap_res_cont);
 	pipel->matrix_mode(MODEL_MATRIX);
 	pipel->load_identity();
@@ -219,7 +220,7 @@ void render () {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glUseProgram(0);
 	
-	gaussian_blur(blur_ping, blur_pong, 2);
+	//gaussian_blur(blur_ping, blur_pong, 2);
 	
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

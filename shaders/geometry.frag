@@ -36,9 +36,9 @@ void main () {
 	vec3 final_color = color;
 	final_color *= max(dot(normalize(normal), -normalize(light_direction)), 0.25);
 	
-	final_color += rand(floor(uv_fake/3)) * 0.33;
-	final_color += rand(floor(uv_fake)) * 0.33;
-	final_color += rand(floor(uv_fake*3)) * 0.33;
+	final_color += rand(floor(uv_fake/3)) * 0.5;
+	//final_color += rand(floor(uv_fake)) * 0.33;
+	//final_color += rand(floor(uv_fake*3)) * 0.33;
 	
 	
 	float bias = 0.00125 * 1.5;
@@ -46,7 +46,7 @@ void main () {
 
 	for (int i=0; i<3; i++){
 		if ( texture2D( shadow_map, shadow_coord.xy + poissonDisk[i]/500.0 ).z < shadow_coord.z-bias){
-			visibility -= 0.2;
+			visibility -= 0.15;
 		}
 	}
 	
