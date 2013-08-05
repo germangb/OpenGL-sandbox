@@ -41,12 +41,12 @@ void main () {
 	//final_color += rand(floor(uv_fake*3)) * 0.33;
 	
 	
-	float bias = 0.00125 * 1.5;
+	float bias = 0.00125 * 1;
 	float visibility = 1;
 
-	for (int i=0; i<3; i++){
+	for (int i=0; i<4; i++){
 		if ( texture2D( shadow_map, shadow_coord.xy + poissonDisk[i]/500.0 ).z < shadow_coord.z-bias){
-			visibility -= 0.15;
+			visibility -= 0.125;
 		}
 	}
 	

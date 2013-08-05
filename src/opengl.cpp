@@ -12,6 +12,7 @@
 #include "../headers/camera.h"
 #include "../headers/mesh_loader.h"
 #include "../headers/pipeline.h"
+#include "../headers/heightmap.h"
 
 int width = 850;
 int height = 525;
@@ -32,6 +33,7 @@ int mouse_y = 0;
 
 fbo* geometry;
 fbo* depth;
+fbo* water_buffer;
 fbo* blur_ping;
 fbo* blur_pong;
 
@@ -40,14 +42,19 @@ shader* geometry_shader;
 shader* simple_shader;
 shader* blur_shader;
 shader* texture_shader;
+shader* water_buffer_shader;
 
 float lightmap_res_cont = 1.f;
 unsigned int mesh;
 unsigned int texture;
 
+heightmap* hm;
+
 void init () {
 	pipel = new pipeline();
 	cam = new camera(pipel);
+	hm = new heightmap();
+	hm->load("gfx/heightmap.bmp");
 	
 	cam->set_viewport(width, height);
 	cam->set_fov(fov);
@@ -65,14 +72,16 @@ void init () {
 	
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	
-	mesh = bake_mesh(mesh_loader("meshes/pipe.obj"));
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	
+	mesh = bake_mesh(mesh_loader("meshes/border.obj"));
 	texture = load_texture("gfx/stairs_uv.png", GL_LINEAR, GL_REPEAT);
 	
 	geometry = new fbo(width, height);
 	blur_ping = new fbo(width, height);
 	blur_pong = new fbo(width, height);
+	water_buffer = new fbo(width, height);
 	depth = new fbo(width*lightmap_res_cont, height*lightmap_res_cont);
 	
 	combine_shader = new shader("shaders/texture.vert", "shaders/combine.frag");
@@ -80,6 +89,7 @@ void init () {
 	geometry_shader = new shader("shaders/geometry.vert", "shaders/geometry.frag");
 	simple_shader = new shader("shaders/simple.vert", "shaders/simple.frag");
 	blur_shader = new shader("shaders/texture.vert", "shaders/blur.frag");
+	water_buffer_shader = new shader("shaders/water_buffer.vert", "shaders/water_buffer.frag");
 }
 
 void gaussian_blur (fbo* a, fbo* b, int passes) {
@@ -121,12 +131,17 @@ void logic () {
 
 void render_scene (unsigned int program_id) {
 	glColor3f(127./255., 120./255., 100./255.);
-	glBegin(GL_QUADS);
+	pipel->push_matrix();
+		pipel->translate(-64, 0, -64);
+		pipel->update_glsl(program_id);
+		hm->gl_render();
+	pipel->pop_matrix();
+	/*glBegin(GL_QUADS);
 		glNormal3f(0, 1, 0);	glVertex3f(-50, 0, -50);
 		glNormal3f(0, 1, 0);	glVertex3f(-50, 0, 50);
 		glNormal3f(0, 1, 0);	glVertex3f(50, 0, 50);
 		glNormal3f(0, 1, 0);	glVertex3f(50, 0, -50);
-	glEnd();
+	glEnd();*/
 	pipel->push_matrix();
 	//pipel->translate(5, 0, -20);
 	pipel->update_glsl(program_id);
@@ -140,6 +155,21 @@ void render_scene (unsigned int program_id) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	pipel->pop_matrix();
 	glColor3f(1,1,1);
+}
+
+void get_water_buffer () {
+	glBindFramebuffer(GL_FRAMEBUFFER, water_buffer->get_fbo_id());
+	glClearColor(0,0,0,1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	cam->use();
+	pipel->matrix_mode(MODEL_MATRIX);
+	pipel->load_identity();
+	glUseProgram(water_buffer_shader->get_program());
+	pipel->update_glsl(water_buffer_shader->get_program());
+	glUniform3f(glGetUniformLocation(water_buffer_shader->get_program(), "color"), 1,1,1);
+	glUniform3f(glGetUniformLocation(water_buffer_shader->get_program(), "color"), 0, 0, 0);
+	render_scene(water_buffer_shader->get_program());
+	glUseProgram(0);
 }
 
 glm::mat4 shadow_view;
@@ -175,6 +205,7 @@ void get_depth_map () {
 
 void render () {
 	get_depth_map();
+	get_water_buffer();
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, geometry->get_fbo_id());
 	glClearColor(0,0,0,1);
@@ -243,10 +274,10 @@ void render () {
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, geometry->get_depth_texture());
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, blur_pong->get_texture());
+	glBindTexture(GL_TEXTURE_2D, water_buffer->get_texture());
 	glUniform1i(glGetUniformLocation(combine_shader->get_program(), "composite"), 0);
 	glUniform1i(glGetUniformLocation(combine_shader->get_program(), "gdepth"), 1);
-	glUniform1i(glGetUniformLocation(combine_shader->get_program(), "blurred"), 2);
+	glUniform1i(glGetUniformLocation(combine_shader->get_program(), "water_buffer"), 2);
 	glUniform2f(glGetUniformLocation(combine_shader->get_program(), "resolution"), width, height);
 	glUniform1f(glGetUniformLocation(combine_shader->get_program(), "time"), float(SDL_GetTicks())/1000.);
 	pipel->update_glsl(combine_shader->get_program());

@@ -3,19 +3,20 @@
 #version 120
 
 #define CEL_SHADING
-#define SAMPLE_WIDTH 0.003
-#define DEPTH_THRESHOLD .3
+#define SAMPLE_WIDTH 0.004
+#define DEPTH_THRESHOLD .7
 
 uniform sampler2D composite;
 uniform sampler2D gdepth;
+uniform sampler2D water_buffer;
 uniform sampler2D blurred;
+uniform float time;
 
 const float near = 1.;
 const float far = 128.;
-const float pp_cont = 1;
+const float pp_cont = 1.;
 
 uniform vec2 resolution;
-
 varying vec4 texcoord;
 
 float oLinearDepth(float depth) {
@@ -46,17 +47,26 @@ float oEdgeDetect(vec2 coord, vec3 col){
 	return 1.0;
 }
 
-
-
-
 void main()
 {
 	vec2 uv = gl_FragCoord.xy / resolution;
-	vec3 color = texture2D(composite, uv).rgb;
-	vec3 blur = texture2D(blurred, uv).rgb;
-	float edge = oEdgeDetect(uv, color.rgb);
+	vec2 uv_original = gl_FragCoord.xy / resolution;
+	vec2 uv_offset = vec2(sin(gl_FragCoord.y*0.125+time*2)*0.00125, cos(gl_FragCoord.x*0.125+time*2)*0.0025); 
+	float water = texture2D(water_buffer, uv).r;
 	
-	gl_FragColor = vec4((color*pp_cont + blur*(1.-pp_cont))*edge*edge,1);
+	if (water < 1.) {
+		uv += uv_offset;
+		if ((1.0 - texture2D(water_buffer, uv).r) >= 1.) {
+			uv -= uv_offset;
+		}
+	}
+	
+	vec3 color = texture2D(composite, uv).rgb;
+	float edge = oEdgeDetect(uv_original, color.rgb);
+	
+	vec3 final_color = color*water + (1.-water) * vec3(33./255., 66./255., 70./255.);
+	
+	gl_FragColor = vec4(final_color*edge*edge,1);
 }
 
 
