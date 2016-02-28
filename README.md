@@ -1,1 +1,1 @@
-cosas random mal hechas
+From when I was learning some computer graphics techniques
